@@ -11,49 +11,54 @@ func TestDo(t *testing.T) {
 
 	cases := []struct {
 		name     string
-		alg      algorithm
 		attempts int
+		alg      algorithm
+		fn       func() error
+
 		floor    time.Duration
 		ceil     time.Duration 
-		fn       func() error
 		want     error
 	}{
 		{
-			"normale usage",
-			ExponentialBackoff,
+			"NormalUsage",
 			3,
-			slotMillis*2 + slotMillis*4,
-			slotMillis*2 + slotMillis*4 + jitterRange*2,
+			ExponentialBackoff,
 			func() error {
 				return fail
 			},
+
+			slotMillis*2 + slotMillis*4,
+			slotMillis*2 + slotMillis*4 + jitterRange*2,
 			fail,
 		},
 		{
 			"NegativeAttempts",
-			ExponentialBackoff,
 			-1,
+			ExponentialBackoff,
+			func() error { return nil },
+
 			0,
 			10,
-			func() error { return nil },
 			errors.New("retry: Do only accepts non negative attempts."),
 		},
 		{
 			"ZeroAttempts",
-			ExponentialBackoff,
 			0,
+			ExponentialBackoff,
+			func() error { return nil },
+
 			0,
 			10,
-			func() error { return nil },
 			ZeroAttempts,
 		},
 		{
 			"OneAttempt",
-			ExponentialBackoff,
 			1,
+			ExponentialBackoff,
+			func() error { return nil },
+
 			0,
 			10,
-			func() error { return nil },
 			nil,
 		},
 	}
